@@ -32,19 +32,18 @@
        * If you want to block the use of the app till the user gets internet again, please delete this line.       
        */
 
-      setTimeout('offlineMessage.hide()', 8000);  
+      //setTimeout('offlineMessage.hide()', 8000);  
 
     }, false);
 
     document.addEventListener("online", function(){
       // If you remove the "setTimeout('offlineMessage.hide()', 8000);" you must remove the comment for the line above      
-      // offlineMessage.hide();
+      offlineMessage.hide();
     });
 
   });
 
-  // This functions will help us save the JSON in the localStorage to read the website content offline
-
+  // These functions will help us save the JSON in the localStorage to read the website content offline
   Storage.prototype.setObject = function(key, value) {
       this.setItem(key, JSON.stringify(value));
   }
