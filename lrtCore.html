@@ -1,0 +1,78 @@
+<ons-page ng-controller="branchesController" ng-init="start(true, 'list')">
+  <ons-toolbar>
+    <div class="left">
+      <ons-toolbar-button ng-click="menu.toggle();"><ons-icon icon="ion-navicon-round" fixed-width="false"></ons-icon></ons-toolbar-button>
+    </div>
+    <div class="center">JADE Learning Login</div>
+    <div class="right" ng-show="isFetching">
+      <ons-toolbar-button><ons-icon icon="ion-loading-c" fixed-width="false" ></ons-icon></ons-toolbar-button>
+    </div>
+  </ons-toolbar>
+  <div class="app-page">
+  
+  	<section class="content noPicBorder">
+        <mark id="newAcctMsg"></mark> 
+        <mark id="returnMsg"></mark> 
+        <form name="qpForm1" id="qpForm1" action="http://www.jade1.com/jadecc/accounts/profile/getLoginRoutes.php" method="post" autocomplete="on" style="width:100%; max-width:300px;">                                                 
+            <h3>Enter Your Information</h3>                                                
+            <div>
+                <label id="nameLbl" for="lrtUN" accesskey="F">Username:</label>
+                <input type="text" name="lrtUN" id="lrtUN" placeholder="Enter your first name" required />
+            </div>
+            <div>
+                <label id="name2Lbl" for="lrtPW" accesskey="L">Password:</label>
+                <input type="text" name="lrtPW" id="lrtPW" placeholder="Enter your last name" required />
+            </div>
+            <div>
+                <label id="emailLbl" for="lrtEmail" accesskey="E">Email Address:</label>
+                <input type="email" name="lrtEmail" id="lrtEmail" placeholder="Enter your email address" pattern="^[A-Za-z0-9](([_\.\-]?[a-zA-Z0-9]+)*)@([A-Za-z0-9]+)(([\.\-]?[a-zA-Z0-9]+)*)\.([A-Za-z]{2,})$" required />
+            </div>                                          
+            <div align="center" style="margin-top:20px; width:100%; max-width:200px;">
+                <button type="submit" id="subQPF1" value="Submit">Submit</button>
+                <span id="spinny">&nbsp;</span>
+            </div>
+        </form>                                      
+        
+        <!-- A little statement -->
+		<div align='center' id='licsTracked' style='padding:10px; font-weight:bold; font-size:16px;'></div>					
+        <div id="timeline" style="max-width:800px;margin:auto;"></div>
+        
+        <br><br><br>
+        <a href='http://www.jade1.com/jadecc/accounts/profile/lrtDevices.html' class="link_1">Reload page</a></td></tr>
+    	<a href="#top" class="go-top">Go to top of page</a>
+	</section>
+    
+    <ons-list modifier="locations">
+      <ons-list-item class="list-location-container" ng-repeat="(id, marker) in markers | orderBy:'distance'" id="{{ id }}" >
+        <ons-row>
+          <ons-col>
+            <div class="km">
+              <!-- if you want to show miles instead of KM remove the line above and replace it with this -->
+              <!-- {{ marker.distance | showMiles }} miles -->
+              {{ marker.distance }} km
+            </div>
+            <div class="name" ng-bind-html="renderHtml(marker.title)"></div>            
+            <div class="location">
+              <i class="fa fa-map-marker"></i> {{ marker.address }}
+            </div>
+            <div class="location">
+              <i class="ion-android-clock"></i> {{ marker.hours }}
+            </div>
+            <div class="desc" ng-bind-html="renderHtml(marker.content)"></div>
+            <div class="clearfix"></div>
+          </ons-col>
+        </ons-row>
+        <ons-row>
+          <ons-col width="28%">
+            <ons-button modifier="large" class="call-phone" data-phone="{{ marker.phone }}">Call</ons-button>
+          </ons-col>
+          <ons-col width="4%"></ons-col>
+          <ons-col width="68%">
+            <ons-button modifier="large cta" class="get-directions" data-marker="{{ marker.id }}">Get Directions</ons-button>
+          </ons-col>
+        </ons-row>
+      </ons-list-item>
+    </ons-list>
+    
+  </div>
+</ons-page>

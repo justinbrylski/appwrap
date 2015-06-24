@@ -1,46 +1,12 @@
 <ons-page>
-
-	<section class="content noPicBorder">
-        <mark id="newAcctMsg"></mark> 
-        <mark id="returnMsg"></mark> 
-        <form name="qpForm1" id="qpForm1" action="http://www.jade1.com/jadecc/accounts/profile/getLoginRoutes.php" method="post" autocomplete="on" style="width:100%; max-width:300px;">                                                 
-            <h3>Enter Your Information</h3>                                                
-            <div>
-                <label id="nameLbl" for="lrtUN" accesskey="F">Username:</label>
-                <input type="text" name="lrtUN" id="lrtUN" placeholder="Enter your first name" required />
-            </div>
-            <div>
-                <label id="name2Lbl" for="lrtPW" accesskey="L">Password:</label>
-                <input type="text" name="lrtPW" id="lrtPW" placeholder="Enter your last name" required />
-            </div>
-            <div>
-                <label id="emailLbl" for="lrtEmail" accesskey="E">Email Address:</label>
-                <input type="email" name="lrtEmail" id="lrtEmail" placeholder="Enter your email address" pattern="^[A-Za-z0-9](([_\.\-]?[a-zA-Z0-9]+)*)@([A-Za-z0-9]+)(([\.\-]?[a-zA-Z0-9]+)*)\.([A-Za-z]{2,})$" required />
-            </div>                                          
-            <div align="center" style="margin-top:20px; width:100%; max-width:200px;">
-                <button type="submit" id="subQPF1" value="Submit">Submit</button>
-                <span id="spinny">&nbsp;</span>
-            </div>
-        </form>                                      
-        
-        <!-- A little statement -->
-		<div align='center' id='licsTracked' style='padding:10px; font-weight:bold; font-size:16px;'></div>					
-        <div id="timeline" style="max-width:800px;margin:auto;"></div>
-        
-        <br><br><br>
-        <a href='http://www.jade1.com/jadecc/accounts/profile/lrtDevices.html' class="link_1">Reload page</a></td></tr>
-    	<a href="#top" class="go-top">Go to top of page</a>
-	</section>
-    
-    
 	<ons-tabbar>
-	  <ons-tab page="branches-list.html">
+	  <ons-tab page="lrtCore.html" active="true">
 	    <ons-icon icon="ion-navicon-round" class="tab-icon">
-	    </ons-icon><span class="tab-label">List View</span>
+	    </ons-icon><span class="tab-label">License Tracker</span>
 	  </ons-tab>
 	  <ons-tab page="branches-map.html" >
 	    <ons-icon icon="ion-map" class="tab-icon">
-	    </ons-icon><span class="tab-label">Map View</span>
+	    </ons-icon><span class="tab-label">Login Form</span>
 	  </ons-tab>  
 	</ons-tabbar>
 </ons-page>
