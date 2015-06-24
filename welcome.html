@@ -10,8 +10,15 @@
       <h2 class="home-title">JADE Learning</h2>
       <p class="subtitle">License Renewal Tracker</p>
 
-      <ons-button modifier="ghost large" ng-click="menu.setMainPage('branches.html', {closeMenu: true});">Current User?<br style="line-height:10px;" />I have a JADE Learning account</ons-button>
-      <ons-button modifier="ghost large" ng-click="menu.setMainPage('near.html', {closeMenu: true});">New Customer?<br style="line-height:10px;" />I do not have a JADE Learning account</ons-button>
+      <ons-button modifier="ghost large" ng-click="setJADEUser('yes'); menu.setMainPage('branches.html', {closeMenu: true});">
+      	<div style="padding:0; margin:0;">Current User?</div>
+        <div style="padding:0; margin:0;">(I have a JADE Learning account)</div>
+      </ons-button>
+      
+      <ons-button modifier="ghost large" ng-click="setJADEUser('no'); menu.setMainPage('near.html', {closeMenu: true});">
+      	<p style="padding:0; margin:0;">New Customer?</p>
+        <p style="padding:0; margin:0;">(I do not have a JADE Learning account)</p>
+      </ons-button>
  
     </div>
     <div class="blur">
@@ -20,9 +27,7 @@
   </div>
 
   <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
-   <filter id="blur">
-     <feGaussianBlur stdDeviation="10" />
-     </filter>
+  	<filter id="blur"><feGaussianBlur stdDeviation="10" /></filter>
   </svg> 
 
 </ons-page>

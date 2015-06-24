@@ -345,6 +345,15 @@
       div.style.left = sw.x - 8 + 'px';
       div.style.top = ne.y - 15 + 'px';
   }  
+  
+  
+  // LRT Functions
+  var JADEuser = "";
+  
+  // Login intentions
+  function setJADEUser(jadeYesNo) {
+     JADEuser = jadeYesNo;
+  }
 
 })();
 
