@@ -346,14 +346,404 @@
       div.style.top = ne.y - 15 + 'px';
   }  
   
-  
-  // LRT Functions
+  /////////////////////////
+  ///   LRT Functions   ///
+  /////////////////////////
   var JADEuser = "";
   
   // Login intentions
   function setJADEUser(jadeYesNo) {
      JADEuser = jadeYesNo;
   }
+  
+  	// Try to login with one of these accounts
+	function oldAccountLogin(acctNum) 
+	{			
+		// See whats going over	
+		var lrtAuthUN = "";
+		//alert("How many fields are going over? "+ $("#acctFound_"+acctNum+" :input").not(':button').length);	
+		$("#acctFound_"+acctNum+" :input").not(':button').each(function() {
+			//alert('#acctFound_'+acctNum+' - ' + $(this).attr('name') + ": " + $(this).val());
+			if($(this).attr('name') == 'username')
+				lrtAuthUN = $(this).val();
+		});		
+		
+		alert("lrtAuthUN_1:"+lrtAuthUN);
+		
+		$.ajax({
+			type: 'POST',
+			url: 'https://www.jade1.com/jadecc/accounts/logcheck.php',
+			async: true,
+			cache: false,
+			contentType: "text/json; charset=utf-8",
+			data: $("#acctFound_"+acctNum+" :input").not(':button'),	
+			dataType: "json",crossDomain: true,	// <-- !!!Notice GAH!!! JSONP==lcase, !AND! IE MUST USE crossDomain: true !!!		
+			success: function(data) {
+	
+				// We have to verify the data, bc JSONP is script tag injection so it could be forged
+				if(data['logCheckStatus'] == "success")
+				{
+					// See whats going over	
+					lrtAuthUN = $("#lrtUN").val();
+					alert("lrtAuthUN_2:"+lrtAuthUN);
+
+					// LOAD THE TIMELINE!!!!!!!!!!!! We have logged into an account.
+					$.ajax({
+						type: 'GET',
+						url: 'http://www.jade1.com/jadecc/accounts/profile/getTimelineData.php', 
+						async: true,
+						cache: false,
+						contentType: "text/json; charset=utf-8",
+						data: { lrtAuthUN: lrtAuthUN },		
+						dataType: "json",crossDomain: true,	// <-- !!!Notice GAH!!! JSONP==lcase, !AND! IE MUST USE crossDomain: true !!!		
+						success: function(data) {
+							// Turn the string response (IN STRICT DOUBLE QUOTED JSON FORMAT) into an object								
+							var jsObj = jQuery.parseJSON(data);
+							var stringsForObject = "";
+							var licsTrackedCnt = 0;
+							
+							// Go through each subobject joining them as one. Json made them all be sep bc of the {}s
+							$.each(jsObj, function(index, subObjData) {
+								//alert("**index: "+index+"\n\n subObjData-stringified(): "+JSON.stringify(subObjData)+"\n\n subObjData.title: "+subObjData.title);
+								
+								// If its not index 0, which is our lic# count
+								if(index != 0) 
+									stringsForObject += JSON.stringify(subObjData)+",";
+								else
+									licsTrackedCnt = subObjData.licTrackCnt;
+							});
+							
+							// Trim the end off like on the PHP side
+							stringsForObject = stringsForObject.substring(0, stringsForObject.length-1);
+							
+							// And Finally, distill it into one object for the timeline
+							var finalTSObj = JSON.parse("["+stringsForObject+"]");
+							var timeline_data = finalTSObj;
+							
+							// Make the timeline
+							var timeline = new Timeline($('#timeline'), timeline_data);
+							timeline.setOptions({
+								animation:        true,
+								responsive_width: 700
+							});
+							
+							// Show the lic# being tracked statement
+							$('#licsTracked').html("Currently tracking "+licsTrackedCnt+" licenses.");
+						
+							// Show the timeline
+							timeline.display();		
+						},
+						error: function(jqXHR, exception) {
+							if (jqXHR.status === 0) alert('No connect. Verify Network. XSS?');
+							else if (jqXHR.status == 404) alert('Requested page not found. [404]');
+							else if (jqXHR.status == 500) alert('Internal Server Error [500].');
+							else if (exception === 'parsererror') alert('Requested JSON parse failed.');
+							else if (exception === 'timeout') alert('Time out error.');
+							else if (exception === 'abort') alert('Ajax request aborted.');
+							else alert('Uncaught Error.\n' + jqXHR.responseText);
+						}
+					});
+				}
+				else
+					alert("Error: "+data['logCheckStatus']);
+			},
+			error: function(jqXHR, exception) {
+				if (jqXHR.status === 0) alert('No connect. Verify Network. XSS?');
+				else if (jqXHR.status == 404) alert('Requested page not found. [404]');
+				else if (jqXHR.status == 500) alert('Internal Server Error [500].');
+				else if (exception === 'parsererror') alert('Requested JSON parse failed.');
+				else if (exception === 'timeout') alert('Time out error.');
+				else if (exception === 'abort') alert('Ajax request aborted.');
+				else alert('Uncaught Error.\n' + jqXHR.responseText);
+			}
+		});
+	}			
+		
+	$(document).ready(function() {
+		$('#returnMsg').hide();
+	
+		// Add validation marks to first form
+		$('#qpForm1 input[type=text], #qpForm1 input[type=number], #qpForm1 input[type=email], #qpForm1 input[type=url], #qpForm1 input[type=tel], #qpForm1 select, #qpForm1 textarea').each(function(){
+			$(this).after('<mark class="validate"></mark>');
+		});
+	
+		// Validate as you type
+		$('#lrtUN, #lrtPW').focusout(function() {
+			if (!$(this).val())
+				$(this).addClass('error').parent().find('mark').removeClass('valid').addClass('error');
+			else
+				$(this).removeClass('error').parent().find('mark').removeClass('error').addClass('valid');
+		});
+		$('#lrtEmail').focusout(function() {
+			if (!$(this).val() || !isEmail($(this).val()))
+				$(this).addClass('error').parent().find('mark').removeClass('valid').addClass('error');
+			else
+				$(this).removeClass('error').parent().find('mark').removeClass('error').addClass('valid');
+		});	
+		
+		$('#subQPF1').click(function() {
+			$("#returnMsg").slideUp(200,function() {
+				$('#returnMsg').hide();
+	
+				// Kick in Validation
+				$('#lrtUN, #lrtPW, #lrtEmail').triggerHandler("focusout");
+	
+				if ($('#contact mark.error').size()>0) {
+					if(shake == "Yes") {
+						$('#contact').effect('shake', { times:2 }, 75, function(){
+							$('#contact input.error:first, #contact textarea.error:first').focus();
+						});
+					} else $('#contact input.error:first, #contact textarea.error:first').focus();
+	
+					return false;
+				}
+			});
+		});
+		
+		// Submit the first form
+		$('#qpForm1').submit(function(){				
+			var action = $(this).attr('action');
+			$('#spinny').append('<img src="http://www.jade1.com/jadecc/ceplan/images/spnner.gif" class="loader" />');
+			$('#subQPF1').attr('disabled','disabled');
+			$.post(action, $('#qpForm1').serialize(), 
+				function(data)
+				{						
+					// Display the return message
+					$('#returnMsg').html( data );
+					$('#returnMsg').slideDown();
+					$('#qpForm1 img.loader').fadeOut('slow',function(){$(this).remove()});
+					$('#qpForm1 #subQPF1').removeAttr('disabled');
+					
+					// Good return? (just looking for the word success anywhere in the return)
+					if(data.match('success') != null) 
+					{
+						// Fold up the first form
+						$('#qpForm1').slideUp('slow');								
+					
+						// 1-to-1 match login ready?
+						if(data.match('WE ARE IN') != null) 
+						{
+							// See whats going over	
+							lrtAuthUN = $("#lrtUN").val();
+							
+							alert("lrtAuthUN: "+lrtAuthUN);
+							
+							// LOAD THE TIMELINE!!!!!!!!!!!! We have logged into an account.
+							$.ajax({
+								type: 'GET',
+								url: 'http://www.jade1.com/jadecc/accounts/profile/getTimelineData.php', 
+								async: true,
+								cache: false,
+								contentType: "text/json; charset=utf-8",
+								data: { lrtAuthUN: lrtAuthUN },		
+								success: function(data) {
+									// Turn the string response (IN STRICT DOUBLE QUOTED JSON FORMAT) into an object				
+									
+									alert("data: "+data);	
+												
+									var jsObj = jQuery.parseJSON(data);
+									var stringsForObject = "";
+									var licsTrackedCnt = 0;
+									
+									// Go through each subobject joining them as one. Json made them all be sep bc of the {}s
+									$.each(jsObj, function(index, subObjData) {
+										//alert("**index: "+index+"\n\n subObjData-stringified(): "+JSON.stringify(subObjData)+"\n\n subObjData.title: "+subObjData.title);
+										
+										// If its not index 0, which is our lic# count
+										if(index != 0) 
+											stringsForObject += JSON.stringify(subObjData)+",";
+										else
+											licsTrackedCnt = subObjData.licTrackCnt;
+									});
+									
+									// Trim the end off like on the PHP side
+									stringsForObject = stringsForObject.substring(0, stringsForObject.length-1);
+									
+									// And Finally, distill it into one object for the timeline
+									var finalTSObj = JSON.parse("["+stringsForObject+"]");
+									var timeline_data = finalTSObj;
+									
+									// Make the timeline
+									var timeline = new Timeline($('#timeline'), timeline_data);
+									timeline.setOptions({
+										animation:        true,
+										responsive_width: 700
+									});
+									
+									// Show the lic# being tracked statement
+									$('#licsTracked').html("Currently tracking "+licsTrackedCnt+" licenses.");
+								
+									// Show the timeline
+									timeline.display();		
+								},
+								error: function(jqXHR, exception) {
+									
+									alert("jqXHR.status: "+jqXHR.status);
+									alert("exception: "+exception);
+									
+									
+									if (jqXHR.status === 0) alert('No connect. Verify Network. XSS?');
+									else if (jqXHR.status == 404) alert('Requested page not found. [404]');
+									else if (jqXHR.status == 500) alert('Internal Server Error [500].');
+									else if (exception === 'parsererror') alert('Requested JSON parse failed.');
+									else if (exception === 'timeout') alert('Time out error.');
+									else if (exception === 'abort') alert('Ajax request aborted.');
+									else alert('Uncaught Error.\n' + jqXHR.responseText);
+								}
+							});
+							alert("here :(");
+						}							
+						// Multiple to choose from?
+						else if(data.match('CHOOSE') != null) 
+						{
+							// Selecty							
+							alert("Choose");
+						}					
+						// If new acct form is returned
+						else if(data.match('NEW USER') != null) 
+						{
+							alert("newFormSetup");
+							
+							// Init the new acct form
+							newFormSetup();
+							// Focus on the username field if that form is returned
+							$('#qpForm2New input[name="username"]').focus();
+						}
+					}
+					else
+					{
+						// Error message
+						if(data.match('emptyUN'))	alert("Empty Username");
+						if(data.match('emptyPW'))   alert("Empty Password");
+						if(data.match('nouser'))	alert("Invalid Username");
+						if(data.match('badpass'))	alert("Invalid Password");
+						if(data.match('nodb'))      alert("Could not connect to database");
+					}											
+				}
+			);
+	
+			return false;
+		});
+		
+		function isEmail(emailAddress) {
+			var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
+			return pattern.test(emailAddress);
+		}
+			
+		function newFormSetup()
+		{
+			var shake = "No";
+			$('#newAcctMsg').hide();
+			
+			// Add validation marks to second form
+			$('#qpForm2New input[type=text]').each(function(){
+				$(this).after('<mark class="validate"></mark>');
+			});
+			
+			// Acct username verification
+			$('#username').focusout(function() {
+				var username = $(this).val();
+				var username_box = $(this);	
+				if (!username)
+					$(username_box).addClass('error').parent().find('mark').removeClass('valid').addClass('error');
+				else {
+					$.ajax({
+						type: 'POST',
+						url: 'http://www.jade1.com/jadecc/registration/addNewUser.php',
+						async: true,
+						cache: false,
+						contentType: "text/json; charset=utf-8",
+						data: { username: username, qp2Login: "yes" },			
+						dataType: "json",crossDomain: true,	// <-- !!!Notice GAH!!! JSONP==lcase, !AND! IE MUST USE crossDomain: true !!!		
+						success: function(data) {
+							//alert("Error: "+JSON.stringify(data));
+							// We have to verify the data, bc JSONP is script tag injection so it could be forged
+							if(data['UNCheckStatus'] == "success")
+							{
+								// Username IS available, now make sure it doesnt have any special chars (from reg script)
+								user_passRe=/^\w+$/;
+								if(!(user_passRe.test(username)))
+								{
+									// Display the sad message
+									$('#newAcctMsg').html( "<div class='error_message'>Error: Invalid username (contains non alpha-numeric characters)</div>" );
+									$('#newAcctMsg').slideDown(300);
+									$(username_box).addClass('error').parent().find('mark').removeClass('valid').addClass('error');
+								}
+								else
+								{
+									// Hide any errors, remove any error classes
+									$("#newAcctMsg").slideUp(300,function() { $('#newAcctMsg').hide(); });		
+									$(username_box).removeClass('error').parent().find('mark').removeClass('error').addClass('valid');
+								}
+							}
+							else
+							{
+								// Display the return message
+								$('#newAcctMsg').html( data['UNCheckStatus'] );
+								$('#newAcctMsg').slideDown(300);
+								$(username_box).addClass('error').parent().find('mark').removeClass('valid').addClass('error');
+							}
+						},
+						error: function(jqXHR, exception) {
+							if (jqXHR.status === 0) alert('No connect. Verify Network. XSS?');
+							else if (jqXHR.status == 404) alert('Requested page not found. [404]');
+							else if (jqXHR.status == 500) alert('Internal Server Error [500].');
+							else if (exception === 'parsererror') alert('Requested JSON parse failed.');
+							else if (exception === 'timeout') alert('Time out error.');
+							else if (exception === 'abort') alert('Ajax request aborted.');
+							else alert('Uncaught Error.\n' + jqXHR.responseText);
+						}
+					});
+				}
+			});
+			
+			// Acct password verification
+			$('#password1').focusout(function() {
+				var password1 = $(this).val();
+				var password1_box = $(this);
+				if (!password1)
+					$(password1_box).addClass('error').parent().find('mark').removeClass('valid').addClass('error');
+				else
+				{
+					// Username IS available, now make sure it doesnt have any special chars (from reg script)
+					user_passRe=/^\w+$/;
+					if(!(user_passRe.test(password1)))
+					{
+						// Display the sad message
+						$('#newAcctMsg').html( "<div class='error_message'>Error: Invalid password (contains non alpha-numeric characters)</div>" );
+						$('#newAcctMsg').slideDown(300);
+						$(password1_box).addClass('error').parent().find('mark').removeClass('valid').addClass('error');
+					}
+					else
+					{
+						// Hide any errors, remove any error classes
+						$("#newAcctMsg").slideUp(300,function() { $('#newAcctMsg').hide(); });	
+						$(password1_box).removeClass('error').parent().find('mark').removeClass('error').addClass('valid');	
+					}
+				}
+			});
+			
+			$('#subQPF2New').click(function() {
+				$("#newAcctMsg").slideUp(200,function() {
+					$('#newAcctMsg').hide();
+		
+					// Kick in Validation
+					$('#username, #password1').triggerHandler("focusout");
+		
+					if ($('#contact mark.error').size()>0) {
+						if(shake == "Yes") {
+							$('#contact').effect('shake', { times:2 }, 75, function(){
+								$('#contact input.error:first, #contact textarea.error:first').focus();
+							});
+						} else $('#contact input.error:first, #contact textarea.error:first').focus();
+		
+						return false;
+					}
+				});
+			});
+		}
+		$('input:text:first').focus();
+	});
 
 })();
 
