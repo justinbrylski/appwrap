@@ -28,7 +28,7 @@
                 <input type="email" name="lrtEmail" id="lrtEmail" placeholder="Enter your email address" pattern="^[A-Za-z0-9](([_\.\-]?[a-zA-Z0-9]+)*)@([A-Za-z0-9]+)(([\.\-]?[a-zA-Z0-9]+)*)\.([A-Za-z]{2,})$" required />
             </div>                                          
             <div align="center" style="margin-top:20px; width:100%; max-width:200px;">
-                <button type="submit" id="subQPF1" value="Submit">Submit</button>
+                <ons-button modifier="large cta" type="submit" id="subQPF1" value="Submit">Submit</ons-button>
                 <span id="spinny">&nbsp;</span>
             </div>
         </form>                                      
@@ -42,37 +42,7 @@
     	<a href="#top" class="go-top">Go to top of page</a>
 	</section>
     
-    <ons-list modifier="locations">
-      <ons-list-item class="list-location-container" ng-repeat="(id, marker) in markers | orderBy:'distance'" id="{{ id }}" >
-        <ons-row>
-          <ons-col>
-            <div class="km">
-              <!-- if you want to show miles instead of KM remove the line above and replace it with this -->
-              <!-- {{ marker.distance | showMiles }} miles -->
-              {{ marker.distance }} km
-            </div>
-            <div class="name" ng-bind-html="renderHtml(marker.title)"></div>            
-            <div class="location">
-              <i class="fa fa-map-marker"></i> {{ marker.address }}
-            </div>
-            <div class="location">
-              <i class="ion-android-clock"></i> {{ marker.hours }}
-            </div>
-            <div class="desc" ng-bind-html="renderHtml(marker.content)"></div>
-            <div class="clearfix"></div>
-          </ons-col>
-        </ons-row>
-        <ons-row>
-          <ons-col width="28%">
-            <ons-button modifier="large" class="call-phone" data-phone="{{ marker.phone }}">Call</ons-button>
-          </ons-col>
-          <ons-col width="4%"></ons-col>
-          <ons-col width="68%">
-            <ons-button modifier="large cta" class="get-directions" data-marker="{{ marker.id }}">Get Directions</ons-button>
-          </ons-col>
-        </ons-row>
-      </ons-list-item>
-    </ons-list>
+   
     
   </div>
 </ons-page>
